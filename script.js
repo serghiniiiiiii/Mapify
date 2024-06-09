@@ -11,7 +11,7 @@ var map = new ol.Map({ // new map (using open layers)
         
         new ol.layer.Tile({ // add the tile layer
             source: new ol.source.XYZ({// source of the tile layer
-                url: "https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}@2x.jpg?api_key=4031eaef-2e75-4076-a8a9-3aa8c7c391f1",
+                url: "https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}@2x.jpg?api_key=c39d1676-362f-4525-8753-5c9c039292f8",
             })
         })
     ],
