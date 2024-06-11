@@ -52,39 +52,47 @@ var displayingCoordinates = false; // Variable to track if coordinates are curre
 
 
 
+
+function fetchElevation(lat, lon) {
+    var elevationUrl =`https://api.open-elevation.com/api/v1/lookup?locations=${lat},${lon}`;
+    return fetch(elevationUrl)
+        .then(response => response.json())
+        .then(data => data.results[0].elevation)
+        .catch(error => {
+            console.error('Error fetching elevation:', error);
+            return 0; // Default elevation if error occurs
+        });
+}
+
 function coordonitedfunction() {
     if (!displayingCoordinates) { // now the displayingCoordinates will be true
-        clickEventListener = function(event) { // this it work when i click in map
+        clickEventListener = async function(event) { // this it work when i click in map
             if (activeCoordinates) {   
                 var storecoordinate = event.coordinate; // when click in the map the coordinate in this point will be stored in storecoordinate
 
-                var lonLat = ol.proj.toLonLat(storecoordinate); // translet the geographiy coordinate to altutide and longtitude coordinate
+                var lonLat = ol.proj.toLonLat(storecoordinate); // translate the geography coordinate to altitude and longitude coordinate
 
-                var Coordinate = ol.proj.transform(storecoordinate, 'EPSG:3857', 'EPSG:4326'  ); // Web Mercator ||  translet the coordinated from EPSG:3857 to EPSG:4326
+                var Coordinate = ol.proj.transform(storecoordinate, 'EPSG:3857', 'EPSG:4326'); // Web Mercator || translate the coordinates from EPSG:3857 to EPSG:4326
                 
-                var content =  "X: " + lonLat[0].toFixed(6) +  '<br>' +' Y : ' + lonLat[1].toFixed(6) 
-               
-        
+                var z = await fetchElevation(lonLat[1], lonLat[0]);
+
+                var content = "X: " + lonLat[0].toFixed(6) + '<br>' + "Y: " + lonLat[1].toFixed(6) + '<br>' + "Z: " + z.toFixed(2);
+
                 coordinateOverlay.getElement().innerHTML = content;
                 coordinateOverlay.setPosition(storecoordinate); 
                 
-                
                 // Add a point feature at the clicked location
                 var point = new ol.Feature({ // add new feature
-                    geometry: new ol.geom.Point(storecoordinate) // add the spicify feature
+                    geometry: new ol.geom.Point(storecoordinate) // add the specific feature
                 });
                 vectorSource.addFeature(point); // Add feature to the vector source
             }
         };
 
-
-
         map.on('click', clickEventListener);
-        document.getElementById('scroll-info1').innerHTML = "back"; // Change button text to "Back"
+        document.getElementById('scroll-info1').innerHTML = "Back"; // Change button text to "Back"
         displayingCoordinates = true; // Update state to indicate coordinates are being displayed
-    } 
-    
-    else {
+    } else {
         map.un('click', clickEventListener);
         coordinateOverlay.setPosition(undefined); // Remove overlay from the map
         document.getElementById('scroll-info1').innerHTML = "Show Coordinate"; // Change button text to "Show Coordinate"
